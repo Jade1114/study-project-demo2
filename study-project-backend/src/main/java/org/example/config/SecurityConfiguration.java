@@ -21,6 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 @Configuration
 public class SecurityConfiguration {
@@ -44,7 +45,7 @@ public class SecurityConfiguration {
                         .failureHandler(this::onAuthenticationFailure)
                 )
                 .logout(conf -> conf
-                        .logoutUrl("/api/logout")
+                        .logoutUrl("/api/auth/logout")
                         .logoutSuccessHandler(this::onLogoutSuccess)
                 )
                 .exceptionHandling(conf -> conf
@@ -82,7 +83,14 @@ public class SecurityConfiguration {
     }
 
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        response.getWriter().write("Success");
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter writer = response.getWriter();
+        String authorization = request.getHeader("Authorization");
+        if (jwtUtils.invalidateJwt(authorization)) {
+            writer.write(RestBean.success().asJsonString());
+        } else {
+            writer.write(RestBean.failure(400, "退出登录失败").asJsonString());
+        }
     }
 
     public void onAccessDeny(HttpServletRequest request,

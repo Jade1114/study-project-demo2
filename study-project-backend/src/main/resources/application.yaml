@@ -3,3 +3,8 @@ spring:
     jwt:
       key: abcdefghijk
       expire: 7
+  datasource:
+    username: remoteUser
+    password: 20041114Liuyu!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://8.137.146.104/study_project_demo2

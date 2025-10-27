@@ -1,9 +1,12 @@
 package org.example.config;
 
+import jakarta.annotation.Resource;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.entity.RestBean;
+import org.example.entity.vo.response.AuthorizeVO;
+import org.example.utils.JwtUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,12 +14,16 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.SecurityFilterChain;
 
 import java.io.IOException;
 
 @Configuration
 public class SecurityConfiguration {
+
+    @Resource
+    JwtUtils jwtUtils;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -45,7 +52,14 @@ public class SecurityConfiguration {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write(RestBean.success().asJsonString());
+        User user = (User) authentication.getPrincipal();
+        String token = jwtUtils.createJwt(user,1,"jade");
+        AuthorizeVO vo = new AuthorizeVO();
+        vo.setExpireTime(jwtUtils.expireTime());
+        vo.setRole("");
+        vo.setToken(token);
+        vo.setUsername("jade");
+        response.getWriter().write(RestBean.success(vo).asJsonString());
     }
 
     public void onAuthenticationFailure(HttpServletRequest request,

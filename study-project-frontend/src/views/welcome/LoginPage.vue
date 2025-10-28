@@ -28,7 +28,7 @@ function userLogin() {
 
     }
     login(form.username, form.password, form.remember, () => {
-
+      router.push("/index")
     })
   })
 }

@@ -37,8 +37,14 @@ function deleteAccessToken() {
     sessionStorage.removeItem(authItemName)
 }
 
+function accessHeader() {
+    const token = takeAccessToken()
+    return token ? {
+        'Authorization': `Bearer ${takeAccessToken()}`
+    } : {}
+}
 
-function internalPost(url, data, header, success, failure, error = defaultError()) {
+function internalPost(url, data, header, success, failure, error = defaultError) {
     axios.post(url, data, {
         headers: header
     }).then(({data}) => {
@@ -50,7 +56,7 @@ function internalPost(url, data, header, success, failure, error = defaultError(
     }).catch(err => error(err))
 }
 
-function internalGet(url, data, header, success, failure, error = defaultError()) {
+function internalGet(url, header, success, failure, error = defaultError) {
     axios.get(url, {
         headers: header
     }).then(({data}) => {
@@ -62,7 +68,15 @@ function internalGet(url, data, header, success, failure, error = defaultError()
     }).catch(err => error(err))
 }
 
-function login(username, password, remember, successs, failure = defaultFailure()) {
+function get(url, success, failure = defaultFailure) {
+    internalGet(url, accessHeader(), success, failure)
+}
+
+function post(url, data, success, failure = defaultFailure) {
+    internalPost(url, data, accessHeader(), success, failure)
+}
+
+function login(username, password, remember, successs, failure = defaultFailure) {
     internalPost('/api/auth/login', {
         username: username, password: password,
     }, {
@@ -74,4 +88,16 @@ function login(username, password, remember, successs, failure = defaultFailure(
     }, failure)
 }
 
-export {login}
+function logout(success, failure = defaultFailure) {
+    get('api/auth/logout', () => {
+        deleteAccessToken()
+        ElMessage.success('退出登录成功,欢迎您再次使用')
+        success()
+    }, failure)
+}
+
+function unauthorized() {
+    return !takeAccessToken()
+}
+
+export {login, logout, get, post, unauthorized}

@@ -5,6 +5,17 @@ spring:
     jwt:
       key: abcdefghijk
       expire: 7
+  mail:
+    host: smtp.163.com
+    username: Jade0v0@163.com
+    password: HUfnrH6Pxiu8j4zk
+    properties:
+      from: Jade0v0@163.com
+  rabbitmq:
+    addresses: localhost
+    username: guest
+    password: guest
+    virtual-host: /
   datasource:
     username: remoteUser
     password: 20041114Liuyu!
